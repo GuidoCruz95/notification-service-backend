@@ -1,6 +1,9 @@
 from rest_framework import generics
-from .models import Category, Message
-from .serializers import CategorySerializer, MessageSerializer
+from rest_framework import status
+from rest_framework.response import Response
+
+from .models import Category, GilaMessage, User
+from .serializers import CategorySerializer, MessageSerializer, UserSerializer
 
 
 class CategoryListCreateView(generics.ListCreateAPIView):
@@ -48,8 +51,15 @@ class MessageListCreateView(generics.ListCreateAPIView):
         serializer_class (MessageSerializer): The serializer class to convert
             Message objects to JSON representation and vice versa.
     """
-    queryset = Message.objects.all()
+    queryset = GilaMessage.objects.all()
     serializer_class = MessageSerializer
+
+    def post(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class MessageRetrieveUpdateDeleteView(generics.RetrieveUpdateDestroyAPIView):
@@ -65,5 +75,38 @@ class MessageRetrieveUpdateDeleteView(generics.RetrieveUpdateDestroyAPIView):
         serializer_class (MessageSerializer): The serializer class to convert
             Message objects to JSON representation and vice versa.
     """
-    queryset = Message.objects.all()
+    queryset = GilaMessage.objects.all()
     serializer_class = MessageSerializer
+
+
+class UserListCreateView(generics.ListCreateAPIView):
+    """
+    API view for listing and creating User objects.
+
+    The UserListCreateView is a generic view that handles listing all existing
+    User objects and creating new User objects.
+
+    Attributes:
+        queryset (QuerySet): The queryset of User objects to be listed.
+        serializer_class (UserSerializer): The serializer class to convert
+            User objects to JSON representation and vice versa.
+    """
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+
+
+class UserRetrieveUpdateDeleteView(generics.RetrieveUpdateDestroyAPIView):
+    """
+    API view for retrieving, updating, and deleting a specific User object.
+
+    The UserRetrieveUpdateDeleteView is a generic view that handles retrieving,
+    updating, and deleting a specific User object based on its primary key (id).
+
+    Attributes:
+        queryset (QuerySet): The queryset of User objects from which to retrieve
+            the specific User object.
+        serializer_class (UserSerializer): The serializer class to convert
+            User objects to JSON representation and vice versa.
+    """
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
