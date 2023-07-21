@@ -48,3 +48,17 @@ A REST api written with Django to provide data management for notification servi
     ```
         http://localhost:8000/notification-service
     ```
+## Available entrypoints
+| Entrypoint                                  |     response      |             Allowed methods              |
+|:--------------------------------------------|:-----------------:|:----------------------------------------:|
+| /admin                                      | DRF management UI | It's a vew to see your DB on the browser |
+| /notification-service/categories/           |       JSON        |         GET, POST, HEAD, OPTIONS         |
+| /notification-service/categories/<uuid:pk>/ |       JSON        |  GET, PUT, PATCH, DELETE, HEAD, OPTIONS  |
+| /notification-service/messages/             |       JSON        |         GET, POST, HEAD, OPTIONS         |
+| /notification-service/messages/<uuid:pk>/   |       JSON        |  GET, PUT, PATCH, DELETE, HEAD, OPTIONS  |
+
+## Note
+To use the DRF admin, you need to create a user, you can do it using the following commands:
+```bash
+  $ python manage.py createsuperuser
+```
