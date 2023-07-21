@@ -1,5 +1,7 @@
 import uuid
+
 from django.db import models
+from django.utils import timezone
 
 
 class Category(models.Model):
@@ -71,6 +73,16 @@ class User(models.Model):
     Represents a user.
 
     The User model represents a user with a name, email, phone number, and related subscribed_categories.
+
+    Attributes:
+        id (UUIDField): The unique identifier for the user.
+        name (CharField): The name of the user, limited to 35 characters.
+        email (CharField): The email address of the user, limited to 35 characters.
+        phone_number (IntegerField): The phone number of the user.
+        subscribed (ManyToManyField): A many-to-many relationship with the Category model,
+            representing the categories to which the user is subscribed.
+        channels (ManyToManyField): A many-to-many relationship with the Channel model,
+            representing the channels associated with the user.
     """
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     name = models.CharField(max_length=35)
@@ -81,3 +93,31 @@ class User(models.Model):
 
     def __str__(self):
         return self.name
+
+
+class LogHistory(models.Model):
+    """
+    Represents a LogHistory.
+
+    The LogHistory model represents a log entry with information about the user, channel, and message.
+
+    Attributes:
+        id (UUIDField): The unique identifier for the log history entry.
+        time (DateTimeField): The date and time when the log entry was created. Default value is the current date and time.
+        user (ForeignKey): A foreign key to the User model, representing the user associated with the log entry.
+        channel (ForeignKey): A foreign key to the Channel model, representing the channel associated with the log entry.
+        message (TextField): The content of the log entry, allowing unlimited characters.
+    """
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    time = models.DateTimeField(default=timezone.now)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    channel = models.ForeignKey(Channel, on_delete=models.CASCADE)
+    message = models.TextField()
+
+    def __str__(self):
+        return "Log ID: {id}, Time: {time}, User: {user}, Channel: {channel}".format(
+            id=self.id,
+            time=self.time,
+            user=self.user,
+            channel=self.channel
+        )

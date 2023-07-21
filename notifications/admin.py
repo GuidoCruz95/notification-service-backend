@@ -1,5 +1,6 @@
 from django.contrib import admin
-from .models import Category, GilaMessage, Channel, User
+
+from .models import Category, GilaMessage, Channel, User, LogHistory
 
 
 @admin.register(Category)
@@ -20,3 +21,8 @@ class ChannelAdmin(admin.ModelAdmin):
 @admin.register(User)
 class UserAdmin(admin.ModelAdmin):
     list_display = ('id', 'name', 'email', 'phone_number')
+
+
+@admin.register(LogHistory)
+class LogHistoryAdmin(admin.ModelAdmin):
+    list_display = ('id', 'time', 'user', 'channel')

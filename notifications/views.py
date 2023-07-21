@@ -1,9 +1,11 @@
-from rest_framework import generics
+from rest_framework import generics, viewsets
 from rest_framework import status
+from rest_framework.decorators import action
 from rest_framework.response import Response
 
-from .models import Category, GilaMessage, User
-from .serializers import CategorySerializer, MessageSerializer, UserSerializer
+from .models import Category, GilaMessage, User, LogHistory
+from .serializers import CategorySerializer, MessageSerializer, UserSerializer, LogHistorySerializer
+from .utilities.notifier import notify
 
 
 class CategoryListCreateView(generics.ListCreateAPIView):
@@ -39,6 +41,47 @@ class CategoryRetrieveUpdateDeleteView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = CategorySerializer
 
 
+class CategoryUsersViewSet(viewsets.ModelViewSet):
+    """
+    API viewset for listing users filtered by a specific category.
+
+    The CategoryUsersViewSet is a viewset that provides a custom action for filtering users
+    based on a specific category.
+
+    Attributes:
+        queryset (QuerySet): The queryset of User objects to be listed, retrieved, etc.
+        serializer_class (UserSerializer): The serializer class to convert User objects to JSON representation and vice versa.
+    """
+
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+
+    @action(detail=False, methods=['get'], url_path='category_users')
+    def category_users(self, request):
+        """
+        Custom action to retrieve users filtered by a specific category.
+
+        Args:
+            request: The HTTP request.
+
+        Returns:
+            A list of users filtered by the specified category or all users if category_id is not provided.
+            Returns a response with filtered users and status code 200 if successful.
+            Returns a response with an error message and status code 400 if an invalid category_id is provided.
+        """
+        category_id = request.query_params.get('category_id')
+        filtered_users = []
+        if category_id:
+            try:
+                users = User.objects.filter(subscribed__id=category_id)
+                serializer = UserSerializer(users, many=True)
+                filtered_users = serializer.data
+            except ValueError:
+                return Response({"error": "Invalid category_id"}, status=status.HTTP_400_BAD_REQUEST)
+
+        return Response(filtered_users, status=status.HTTP_200_OK)
+
+
 class MessageListCreateView(generics.ListCreateAPIView):
     """
     API view for listing and creating Message objects.
@@ -57,7 +100,8 @@ class MessageListCreateView(generics.ListCreateAPIView):
     def post(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         if serializer.is_valid():
-            serializer.save()
+            message = serializer.save()
+            notify(message)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -110,3 +154,19 @@ class UserRetrieveUpdateDeleteView(generics.RetrieveUpdateDestroyAPIView):
     """
     queryset = User.objects.all()
     serializer_class = UserSerializer
+
+
+class LogHistoryViewSet(viewsets.ModelViewSet):
+    """
+    API viewset for listing users filtered by a specific category.
+
+    The CategoryUsersViewSet is a viewset that provides a custom action for filtering users
+    based on a specific category.
+
+    Attributes:
+        queryset (QuerySet): The queryset of User objects to be listed, retrieved, etc.
+        serializer_class (UserSerializer): The serializer class to convert User objects to JSON representation and vice versa.
+    """
+
+    queryset = LogHistory.objects.all()
+    serializer_class = LogHistorySerializer
