@@ -65,5 +65,5 @@ class LogHistory(models.Model):
             id=self.id,
             time=self.time,
             user=self.user,
-            channel_type = self.channel_type
+            channel_type=self.channel_type
         )
