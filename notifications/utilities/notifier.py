@@ -1,12 +1,12 @@
-from django.db import transaction
-
-from ..models import User, LogHistory
 import logging
+
+from notifications.utilities import local_data
+from notifications.utilities.local_data import LocalDataHandler
 
 logger = logging.getLogger(__name__)
 
 
-def notify(message):
+def new_message_notify(message):
     """
     Notifies subscribed users via the appropriate channels based on the given message.
 
@@ -21,20 +21,14 @@ def notify(message):
     Returns:
         None
     """
-    log_history_objs = []
-
     category = message.category
-    subscribed_users = User.objects.filter(subscribed__id=category.id).prefetch_related('channels')
 
-    for user in subscribed_users:
-        for channel in user.channels.all():
-            log_history = LogHistory(user=user, channel=channel, message=message)
-            log_history_objs.append(log_history)
+    # Load users and categories
+    local_data_handler = LocalDataHandler()
+    local_data_handler.load_categories()
+    local_data_handler.load_local_users()
 
-            # Log the notification message to the console
-            logger.info(f"Notified to {user.email} by {channel.type}, message: {message.message}")
-
-    # Save the log_history objects in the DB
-    with transaction.atomic():
-        LogHistory.objects.bulk_create(log_history_objs)
-
+    users = local_data_handler.get_subscribed_users(category)
+    for user in users:
+        print("User notified: {}:".format(user.name))
+        user.send_notifications(message)
