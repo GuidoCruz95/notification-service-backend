@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from .models import Category, GilaMessage, Channel, User, LogHistory
+from .models import Category, GilaMessage, LogHistory
 
 
 class CategorySerializer(serializers.ModelSerializer):
@@ -43,46 +43,6 @@ class MessageSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-class ChannelSerializer(serializers.ModelSerializer):
-    """
-    Serializer for the Channel model.
-
-    The ChannelSerializer is used to convert Channel model instances to JSON
-    representation and vice versa. It provides a straightforward way to serialize
-    and deserialize Channel objects.
-
-    Attributes:
-        Meta: A nested class that defines the serializer's behavior and configuration.
-            model (Channel): The Django model associated with the serializer.
-            fields (list or '__all__'): The fields to include in the serialized representation
-                of Channel objects. If '__all__' is used, all fields of the model will be included.
-    """
-
-    class Meta:
-        model = Channel
-        fields = '__all__'
-
-
-class UserSerializer(serializers.ModelSerializer):
-    """
-    Serializer for the User model.
-
-    The UserSerializer is used to convert User model instances to JSON
-    representation and vice versa. It provides a straightforward way to serialize
-    and deserialize User objects.
-
-    Attributes:
-        Meta: A nested class that defines the serializer's behavior and configuration.
-            model (User): The Django model associated with the serializer.
-            fields (list or '__all__'): The fields to include in the serialized representation
-                of User objects. If '__all__' is used, all fields of the model will be included.
-    """
-
-    class Meta:
-        model = User
-        fields = '__all__'
-
-
 class LogHistorySerializer(serializers.ModelSerializer):
     """
     Serializer for the LogHistory model.
@@ -100,8 +60,6 @@ class LogHistorySerializer(serializers.ModelSerializer):
             fields (list or '__all__'): The fields to include in the serialized representation
                 of LogHistory objects. If '__all__' is used, all fields of the model will be included.
     """
-    user = UserSerializer()
-    channel = ChannelSerializer()
 
     class Meta:
         model = LogHistory
