@@ -60,6 +60,7 @@ class LogHistorySerializer(serializers.ModelSerializer):
             fields (list or '__all__'): The fields to include in the serialized representation
                 of LogHistory objects. If '__all__' is used, all fields of the model will be included.
     """
+    message = MessageSerializer()
 
     class Meta:
         model = LogHistory
